@@ -60,26 +60,27 @@ let config = {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1024,
     CAPTURE_RESOLUTION: 512,
-    DENSITY_DISSIPATION: 1,
-    VELOCITY_DISSIPATION: 0.2,
+    DENSITY_DISSIPATION: 0,
+    VELOCITY_DISSIPATION: 3,
     PRESSURE: 0.8,
     PRESSURE_ITERATIONS: 20,
-    CURL: 30,
+    CURL: 0, //vorticity
     SPLAT_RADIUS: 0.25,
     SPLAT_FORCE: 6000,
     SHADING: true,
     COLORFUL: true,
     COLOR_UPDATE_SPEED: 10,
     PAUSED: false,
-    BACK_COLOR: { r: 0, g: 0, b: 0 },
+    // BACK_COLOR: { r: 0, g: 0, b: 0 },
+    BACK_COLOR:  {r: 255, g: 255, b: 255 },
     TRANSPARENT: false,
-    BLOOM: true,
+    BLOOM: false,
     BLOOM_ITERATIONS: 8,
     BLOOM_RESOLUTION: 256,
     BLOOM_INTENSITY: 0.8,
     BLOOM_THRESHOLD: 0.6,
     BLOOM_SOFT_KNEE: 0.7,
-    SUNRAYS: true,
+    SUNRAYS: false,
     SUNRAYS_RESOLUTION: 196,
     SUNRAYS_WEIGHT: 1.0,
 }
@@ -133,7 +134,7 @@ function getWebGLContext (canvas) {
         supportLinearFiltering = gl.getExtension('OES_texture_half_float_linear');
     }
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
     const halfFloatTexType = isWebGL2 ? gl.HALF_FLOAT : halfFloat.HALF_FLOAT_OES;
     let formatRGBA;
@@ -1303,6 +1304,7 @@ function render (target) {
 
     if (target == null || !config.TRANSPARENT) {
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+				// gl.blendFunc(gl.DST_COLOR, gl.ZERO);
         gl.enable(gl.BLEND);
     }
     else {
@@ -1373,7 +1375,8 @@ function applyBloom (source, destination) {
         last = dest;
     }
 
-    gl.blendFunc(gl.ONE, gl.ONE);
+    // gl.blendFunc(gl.ONE, gl.ONE);
+		gl.blendFunc(gl.DST_COLOR, gl.ZERO);
     gl.enable(gl.BLEND);
 
     for (let i = bloomFramebuffers.length - 2; i >= 0; i--) {
